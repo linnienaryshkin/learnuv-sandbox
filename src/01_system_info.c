@@ -2,7 +2,7 @@
 
 int main()
 {
-  log_info("Hello world");
+    log_info("01_system_info");
   int err;
 
   double uptime;

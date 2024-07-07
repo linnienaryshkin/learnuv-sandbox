@@ -37,6 +37,10 @@ pip install six # https://github.com/thlorenz/learnuv/issues/45
 open learnuv.xcodeproj
 ```
 
+```sh
+./learnuv verify
+```
+
 ## License
 
 MIT
