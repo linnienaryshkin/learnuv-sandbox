@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "*.gz": "json",
+    "*.sql": "sql",
+    ".*yml": "yaml",
+    "locale": "c"
+  }
+}

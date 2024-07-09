@@ -23,10 +23,12 @@ int main()
   uv_idle_t idle;
 
   /* 1. create the event loop */
-  // Why * here?
+  // TODO: Why * here?
+  // http://docs.libuv.org/en/latest/loop.html
   uv_loop_t *loop = uv_default_loop();
 
   /* 2. init an idle handler for the loop */
+  // http://docs.libuv.org/en/latest/idle.html
   uv_idle_init(loop, &idle);
 
   /* 3. start the idle handler with a function to call */

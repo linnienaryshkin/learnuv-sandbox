@@ -9,7 +9,7 @@ Learn uv for fun and profit, a self-guided workshop to [the library](https://git
 Read the [learnuv gitbook](http://thlorenz.github.io/learnuv/book) which explains some libuv and related C language
 concepts that will help you complete the exercises.
 
-## Installation
+## Setup
 
 ```sh
 pyenv install 2.7 &&
@@ -33,7 +33,10 @@ pip install six # https://github.com/thlorenz/learnuv/issues/45
 ```
 
 ```sh
-./learnuv xcode &&
+./learnuv xcode
+```
+
+```sh
 open learnuv.xcodeproj
 ```
 
