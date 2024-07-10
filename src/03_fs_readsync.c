@@ -54,13 +54,11 @@ int main()
 
   /* 4. Report the contents of the buffer */
   log_report("%s", buf);
-
   log_info("%s", buf);
 
   /* 5. Close the file descriptor (`open_req.result`) */
   uv_fs_t close_req;
   r = uv_fs_close(loop, &close_req, open_req.result, NULL);
-
   if (r < 0)
   {
     CHECK(r, "uv_fs_close");
