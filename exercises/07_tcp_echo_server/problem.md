@@ -13,7 +13,7 @@ So lets start with the easy part.
 
 ### Starting the Server and Listening on a Port
 
-First of all we need to initialize our server `tcp_server`. 
+First of all we need to initialize our server `tcp_server`.
 This is done via [`uv_tcp_init`](http://docs.libuv.org/en/latest/tcp.html#c.uv_tcp_init).
 Our server represents the TCP `handle`.
 
@@ -57,8 +57,8 @@ you to carefully read through the code and understand the concepts and technique
 
 ## Hint
 
-Use `nc localhost 7000` to test your server (finish via `Ctrl-D`) and/or stop the server by sending `QUIT`. 
-You can also send entire files, i.e. `cat package.json | netcat localhost 7000`.
+Use `nc localhost 7001` to test your server (finish via `Ctrl-D`) and/or stop the server by sending `QUIT`.
+You can also send entire files, i.e. `cat package.json | netcat localhost 7001`.
 
 On windows you may have to use telnet or putty.
 

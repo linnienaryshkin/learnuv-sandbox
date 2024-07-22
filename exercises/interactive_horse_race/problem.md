@@ -1,10 +1,10 @@
-# interactive horse race 
+# interactive horse race
 
 This is the one exercise where all you have to do is **have fun**! You earned it!
 
 ## Launching the horse race
 
-Start the `interactive_horse_race` and then connect **5** players via `nc localhost 7000`.
+Start the `interactive_horse_race` and then connect **5** players via `nc localhost 7001`.
 Once enough players are connected, the race begins.
 
 ## The rules
@@ -18,7 +18,7 @@ Whoever reaches the end of the track first wins.
 
 This is the exercise where a lot of things we learned before come together to create this silly little game.
 One thing to notice is that now **we don't use threads for our horses** since really we aren't calculating much to move
-them. 
+them.
 
 Instead we use `idle` callbacks (remember the second exercise) in order to update their position. This of course means
 we are doing so on the main thread and can draw the horse without dispatching.
@@ -59,7 +59,7 @@ The very keen of you may have detected some memory leaks in our game. You are pe
 I challenge you to fix them using [valgrind](http://valgrind.org/) to detect them.
 
 I'll be honest with you though. Properly cleaning up what you allocate can be quite challenging especially in async code
-we use with libuv. 
+we use with libuv.
 We have seen how to do this properly for smaller examples, however in this case I just did not have the time to do this
 properly for our horse race.
 

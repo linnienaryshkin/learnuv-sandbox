@@ -156,7 +156,7 @@ int main()
   r = uv_tcp_init(loop, &tcp_server);
   CHECK(r, "uv_tcp_init");
 
-  /* 2. Bind to localhost:7000 */
+  /* 2. Bind to localhost:7001 */
   // http://docs.libuv.org/en/latest/misc.html#c.uv_ip4_addr
   struct sockaddr_in addr;
   r = uv_ip4_addr(HOST, PORT, &addr);
@@ -176,11 +176,11 @@ int main()
   CHECK(r, "uv_listen");
 
   /*
-  * Use `nc localhost 7000` to test your server (finish via Ctrl-D) and/or stop the server by sending QUIT.
+  * Use `nc localhost 7001` to test your server (finish via Ctrl-D) and/or stop the server by sending QUIT.
 nc localhost 7001
 echo 'Hello, Netcat!' | nc localhost 7001
 
-  * You can also send entire files, i.e. `cat package.json | netcat localhost 7000`.
+  * You can also send entire files, i.e. `cat package.json | netcat localhost 7001`.
 cat package.json | netcat localhost 7001
   */
   log_info("Listening on %s:%d", HOST, PORT);

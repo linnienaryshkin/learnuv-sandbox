@@ -9,8 +9,8 @@
 #define HORSE_WIDTH 29
 #define HORSE_HEIGHT 11
 #define TRACK_WIDTH 110 // 110
-#define TRACKS 5       // 5
-#define THREADS "5"    // 5
+#define TRACKS 5        // 5
+#define THREADS "5"     // 5
 
 // http://tldp.org/HOWTO/NCURSES-Programming-HOWTO
 // http://www.gnu.org/software/ncurses/ncurses.html
@@ -95,6 +95,7 @@ void progress_cb(uv_async_t *async)
 {
   horse_t *horse = async->data;
   draw_horse(horse);
+  return;
 }
 
 void race_cb(uv_work_t *work_req)
@@ -132,11 +133,11 @@ void finished_race_cb(uv_work_t *work_req, int status)
 
   if (!DRAW)
   {
-    log_info("Horse %s finished in place %d", horse->name, placement);
+    log_info("Horse %s finished in place %d\ttrack: %d", horse->name, placement, horse->track);
   }
   log_report("Horse %s finished in place %d", horse->name, placement);
-    
-    placement++;
+
+  placement++;
 
   // https://docs.libuv.org/en/latest/handle.html#c.uv_close
   uv_close((uv_handle_t *)&horse->async, NULL);
