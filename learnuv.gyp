@@ -27,6 +27,7 @@
     ]
   },
   'targets': [ 
+    { 'target_name': '00_libuv_sandbox'          , 'sources': [ './src/00_libuv_sandbox.c' ] }          ,
     { 'target_name': '01_system_info'          , 'sources': [ './src/01_system_info.c' ] }          ,
     { 'target_name': '02_idle'                 , 'sources': [ './src/02_idle.c' ] }                 ,
     { 'target_name': '03_fs_readsync'          , 'sources': [ './src/03_fs_readsync.c' ] }          ,
