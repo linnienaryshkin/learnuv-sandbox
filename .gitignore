@@ -1,3 +1,7 @@
+.vscode
+.idea
+.history
+
 lib-cov
 *.seed
 *.log
