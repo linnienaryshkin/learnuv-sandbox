@@ -6,8 +6,16 @@ Learn uv for fun and profit, a self-guided workshop to [the library](https://git
 
 ## Before You Start
 
-Read the [learnuv gitbook](http://thlorenz.github.io/learnuv/book) which explains some libuv and related C language
-concepts that will help you complete the exercises.
+1. C Introduction - https://www.w3schools.com/c/c_intro.php
+2. Pointers - https://www.w3schools.com/c/c_pointers.php
+3. Address-Of / Dereference
+4. Struct - https://www.w3schools.com/c/c_structs.php
+5. Automatic Allocation vs Dynamic Allocation (malloc)
+6. NULL
+7. Typecast - https://www.tutorialspoint.com/cprogramming/c_type_casting.htm
+8. LibUV guidebook (5 mins reading) - https://thlorenz.com/learnuv/book/
+
+And of course a magnificent [LibUV Guidebook](https://docs.libuv.org/en/v1.x/guide/introduction.html)
 
 ## Setup for `macOS 14.5 23F79`
 
