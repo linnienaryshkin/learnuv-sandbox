@@ -1,8 +1,6 @@
 # learnuv
 
-Learn uv for fun and profit, a self-guided workshop to [the library](https://github.com/libuv/libuv) that powers Node.js.
-
-![screenshot](assets/screenshot.png)
+This is a fork, where I did my playtime. Make sure to check the original repo [thlorenz/learnuv](https://github.com/thlorenz/learnuv)
 
 ## Before You Start
 
