@@ -44,6 +44,16 @@ int main()
 
     // TODO: Differentiate IDLE (is it uv_idle_t?) and PREPARE handlers |
     // TODO: Find out that I/O (try file reading, or networking (it's even better because we could initiate event via terminal)) is called before CLOSE handler
+
+    // uv_fs_t *open_req = malloc(sizeof(uv_fs_t));
+    // r = uv_fs_open(uv_default_loop(), open_req, filename, O_RDONLY, S_IRUSR, NULL);
+    // CHECK(r, "uv_fs_open");
+    // char buf[20 + 1];
+    // memset(buf, 0, sizeof(buf));
+    // uv_buf_t iov = uv_buf_init(buf, 20);
+    // uv_fs_t read_req;
+    // r = uv_fs_read(uv_default_loop(), &read_req, open_req->result, &iov, 1, 0, NULL);
+
     // TODO: Understand once CLOSE handler is called
     r = uv_queue_work(uv_default_loop(), work_req, async_hello_world_cb, NULL);
 
