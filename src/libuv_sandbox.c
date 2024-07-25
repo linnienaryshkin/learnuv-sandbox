@@ -27,6 +27,26 @@ void wait_for_a_while(uv_idle_t *handle)
     }
 }
 
+static void on_connection(uv_stream_t *server, int status)
+{
+    CHECK(status, "on_connection");
+
+    int r = 0;
+
+    log_info("Accepting Connection");
+
+    // http://docs.libuv.org/en/latest/tcp.html#c.uv_tcp_init
+    uv_tcp_t *client = malloc(sizeof(uv_tcp_t));
+    r = uv_tcp_init(server->loop, client);
+    CHECK(r, "uv_tcp_init");
+
+    // http://docs.libuv.org/en/latest/stream.html#c.uv_accept
+    r = uv_accept(server, (uv_stream_t *)client);
+    // uv_shutdown_t *shutdown_req = malloc(sizeof(uv_shutdown_t));
+    // r = uv_shutdown(shutdown_req, (uv_stream_t *)client, NULL);
+    // CHECK(r, "uv_shutdown");
+}
+
 int main()
 {
     setenv("UV_THREADPOOL_SIZE", "0", 1);
@@ -53,6 +73,29 @@ int main()
     // uv_buf_t iov = uv_buf_init(buf, 20);
     // uv_fs_t read_req;
     // r = uv_fs_read(uv_default_loop(), &read_req, open_req->result, &iov, 1, 0, NULL);
+
+    uv_tcp_t server;
+    uv_tcp_init(uv_default_loop(), &server);
+
+    /*
+    * Use `nc localhost 7001` to test your server (finish via Ctrl-D) and/or stop the server by sending QUIT.
+  nc localhost 7001
+  echo 'Hello, Netcat!' | nc localhost 7001
+
+    * You can also send entire files, i.e. `cat package.json | netcat localhost 7001`.
+  cat package.json | netcat localhost 7001
+    */
+    char *addr = "0.0.0.0";
+    int port = 7001;
+    uv_ip4_addr("0.0.0.0", port, &addr);
+
+    uv_tcp_bind(&server, (const struct sockaddr *)&addr, 0);
+    r = uv_listen((uv_stream_t *)&server, SOMAXCONN, on_connection);
+    if (r)
+    {
+        fprintf(stderr, "Listen error %s\n", uv_strerror(r));
+        return 1;
+    }
 
     // TODO: Understand once CLOSE handler is called
     r = uv_queue_work(uv_default_loop(), work_req, async_hello_world_cb, NULL);
