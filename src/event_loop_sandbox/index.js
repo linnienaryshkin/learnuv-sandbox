@@ -9,19 +9,20 @@
  * @link New changes to timers and microtasks in Node v11 - https://blog.insiderattack.net/new-changes-to-timers-and-microtasks-from-node-v11-0-0-and-above-68d112743eb3
  * @link JavaScript Event Loop vs Node JS Event Loop - https://blog.insiderattack.net/javascript-event-loop-vs-node-js-event-loop-aea2b1b85f5c
 
-node src/event_loop_sandbox.js
+node src/event_loop_sandbox
 
  */
 
 console.log("Start");
 
 /**
- * demultiplexer
+ * demultiplexer (libuv)
  * - receives I/O requests and delegates these requests to the appropriate hardware.
  * - add the registered callback handler for the particular action (events) in a queue (Event Queue) to be processed
  * - Reactor Pattern
  * - epoll on Linux, kqueue on BSD systems (macOS), event ports in Solaris, IOCP (Input Output Completion Port) in Windows, etc
  * - thread pool is used to handle the I/O operations, in case it cannot be directly addressed by hardware asynchronous I/O utils
+ * - NodeJS has done its best to do most of the I/O using non-blocking and asynchronous hardware I/O, but for the I/O types which blocks or are complex to address, it uses the thread pool.
  */
 
 /**
@@ -30,4 +31,21 @@ console.log("Start");
  * different processes cannot share the same memory space (code, variables, etc)
  * whereas different threads in the same process share the same memory space.
  * Threads are lightweight whereas Processes are heavyweight.
+ */
+
+/**
+ * Event Loop (libuv)
+ * - After processing one phase and before moving to the next phase, event loop will process two intermediate queues until no items are remaining in the intermediate queues.
+ * - Tracking the reference counter of total items to be processed - once it reaches zero, the event loop exits.
+ * 1. Expired timers and intervals queue (min-heap)
+ * 2. IO Events Queue
+ * 3. Immediate Queue
+ * 4. Close Handlers Queue
+ * 0. (before moving between queues) Next Ticks Queue, Other Microtasks Queue (resolved promise callbacks)
+ */
+
+/**
+ * IO starvation
+ * - Extensively filling up the next tick queue using process.nextTick function will force the event loop to keep processing the next tick queue indefinitely without moving forward.
+ * TODO: Write a code snippet to demonstrate IO starvation
  */
