@@ -42,10 +42,83 @@ console.log("Start");
  * 3. Immediate Queue
  * 4. Close Handlers Queue
  * 0. (before moving between queues) Next Ticks Queue, Other Microtasks Queue (resolved promise callbacks)
+ * - Next Ticks and Microtasks Queue will run between each individual setTimeout and setImmediate callbacks to match the browser behavior
  */
+
+/**
+ * Next tick queue is not natively provided by the libuv (four main phases), but implemented in Node.
+ */
+function nextTickQueue() {
+  setTimeout(() => console.log("timeout1"));
+  setTimeout(() => {
+    console.log("timeout2");
+    Promise.resolve().then(() => console.log("promise resolve"));
+  });
+  setTimeout(() => console.log("timeout3"));
+  setTimeout(() => console.log("timeout4"));
+}
+// nextTickQueue();
 
 /**
  * IO starvation
  * - Extensively filling up the next tick queue using process.nextTick function will force the event loop to keep processing the next tick queue indefinitely without moving forward.
  * TODO: Write a code snippet to demonstrate IO starvation
  */
+function ioStarvation() {
+  function addNextTickRecurs(count) {
+    let self = this;
+    if (self.id === undefined) {
+      self.id = 0;
+    }
+
+    if (self.id === count) return;
+
+    process.nextTick(() => {
+      console.log(`process.nextTick call ${++self.id}`);
+      addNextTickRecurs.call(self, count);
+    });
+  }
+
+  addNextTickRecurs(10);
+  // Node add a timer to the timers heap (in memory)
+  setTimeout(console.log.bind(console, "omg! setTimeout was called"), 10);
+  setImmediate(console.log.bind(console, "omg! setImmediate also was called"));
+}
+// ioStarvation();
+
+/**
+ * Node check against time expiration.
+ * Time is taken on each loop run
+ * @link https://docs.libuv.org/en/v1.x/design.html#the-i-o-loop | concept of ‘now’
+ */
+function TimerExecution() {
+  const start = process.hrtime();
+
+  setTimeout(() => {
+    const end = process.hrtime(start);
+    console.log(
+      `timeout callback executed after ${end[0]}s and ${
+        end[1] / Math.pow(10, 9)
+      }ms`
+    );
+  }, 1000);
+}
+// TimerExecution();
+
+/**
+ * As you might guess, this program will always print setTimeout before setImmediate
+ * because the expired timer queue are processed before immediate.
+ * !BUT
+ * The minimum timeout to 1ms in order to align with Chrome’s timers cap
+ * @link https://chromium.googlesource.com/chromium/blink/+/master/Source/core/frame/DOMTimer.cpp#93
+ * So sometimes, setImmediate will be executed before setTimeout.
+ */
+function TimeoutVsImmediate() {
+  setTimeout(function () {
+    console.log("setTimeout");
+  }, 0);
+  setImmediate(function () {
+    console.log("setImmediate");
+  });
+}
+TimeoutVsImmediate();
