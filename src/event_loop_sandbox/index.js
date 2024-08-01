@@ -41,7 +41,7 @@ console.log("Start");
  * 2. IO Events Queue
  * 3. Immediate Queue
  * 4. Close Handlers Queue
- * 0. (before moving between queues) Next Ticks Queue, Other Microtasks Queue (resolved promise callbacks)
+ * 0. (before moving between queues) Next Ticks Queue, Other Microtasks Queue (resolved/reject promise callbacks)
  * - Next Ticks and Microtasks Queue will run between each individual setTimeout and setImmediate callbacks to match the browser behavior
  */
 
@@ -121,4 +121,30 @@ function TimeoutVsImmediate() {
     console.log("setImmediate");
   });
 }
-TimeoutVsImmediate();
+// TimeoutVsImmediate();
+
+/**
+ * Next Ticks and Microtasks (resolved/reject promise) Queues (0) are processed before every phase of the event loop.
+ */
+function PromiseVsImmediate() {
+  new Promise(() => console.log("promise executor"));
+  Promise.resolve().then(() => console.log("promise1 resolved"));
+  Promise.resolve().then(() => console.log("promise2 resolved"));
+  Promise.resolve().then(() => {
+    console.log("promise3 resolved");
+    process.nextTick(() =>
+      console.log("next tick inside promise resolve handler")
+    );
+  });
+  Promise.resolve().then(() => console.log("promise4 resolved"));
+  Promise.resolve().then(() => console.log("promise5 resolved"));
+  /**
+   * Timeout (1) handled earlier than Immediate (3)
+   */
+  setTimeout(() => console.log("setTimeout"), 0);
+  setImmediate(() => console.log("set immediate1"));
+  setImmediate(() => console.log("set immediate2"));
+}
+PromiseVsImmediate();
+
+console.log("End");
