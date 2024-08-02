@@ -13,10 +13,10 @@ node src/event_loop_sandbox
 
  */
 
-console.log("Start");
+console.log("Start of Script");
 
 /**
- * demultiplexer (libuv)
+ * demultiplexer (libuv, libevent for Chrome)
  * - receives I/O requests and delegates these requests to the appropriate hardware.
  * - add the registered callback handler for the particular action (events) in a queue (Event Queue) to be processed
  * - Reactor Pattern
@@ -34,7 +34,7 @@ console.log("Start");
  */
 
 /**
- * Event Loop (libuv)
+ * Event Loop (libuv, libevent for Chrome)
  * - After processing one phase and before moving to the next phase, event loop will process two intermediate queues until no items are remaining in the intermediate queues.
  * - Tracking the reference counter of total items to be processed - once it reaches zero, the event loop exits.
  * 1. Expired timers and intervals queue (min-heap)
@@ -145,6 +145,81 @@ function PromiseVsImmediate() {
   setImmediate(() => console.log("set immediate1"));
   setImmediate(() => console.log("set immediate2"));
 }
-PromiseVsImmediate();
+// PromiseVsImmediate();
 
-console.log("End");
+/**
+ * It's the same example as PromiseVsImmediate
+ */
+function MicrotasksVsMacrotasks() {
+  queueMicrotask(() => console.log("queueMicrotask1 resolved"));
+  queueMicrotask(() => console.log("queueMicrotask2 resolved"));
+  setTimeout(() => {
+    console.log("set timeout3");
+    queueMicrotask(() => console.log("inner queueMicrotask3 resolved"));
+  }, 0);
+  setTimeout(() => console.log("set timeout1"), 0);
+  setTimeout(() => console.log("set timeout2"), 0);
+  queueMicrotask(() => console.log("queueMicrotask4 resolved"));
+  queueMicrotask(() => {
+    console.log("queueMicrotask5 resolved");
+    queueMicrotask(() => console.log("inner queueMicrotask6 resolved"));
+  });
+  queueMicrotask(() => console.log("queueMicrotask7 resolved"));
+}
+// MicrotasksVsMacrotasks();
+
+/**
+ * Even if you have set the timeout to 0, all NodeJS timers seem to have fired after at least1ms.
+ * Chrome seems to cap the minimum timeout to 1ms for the first 4 nested timers. But afterwards, the cap seems to be increased to 4ms.
+ * > “Timers can be nested; after five such nested timers, however, the interval is forced to be at least four milliseconds.”
+ * Both NodeJS and Chrome enforces a 1ms minimum timeout to all the timers
+ */
+function TimerRace() {
+  const startHrTime = () => {
+    if (typeof window !== "undefined") return performance.now();
+    return process.hrtime();
+  };
+
+  const getHrTimeDiff = (start) => {
+    if (typeof window !== "undefined") return performance.now() - start;
+    const [ts, tns] = process.hrtime(start);
+    return ts * 1e3 + tns / 1e6;
+  };
+
+  console.log("TimerRace starts");
+  const start1 = startHrTime();
+  const outerTimer = setTimeout(() => {
+    const start2 = startHrTime();
+    console.log(`timer1: ${getHrTimeDiff(start1)}`);
+    setTimeout(() => {
+      const start3 = startHrTime();
+      console.log(`timer2: ${getHrTimeDiff(start2)}`);
+      setTimeout(() => {
+        const start4 = startHrTime();
+        console.log(`timer3: ${getHrTimeDiff(start3)}`);
+        setTimeout(() => {
+          const start5 = startHrTime();
+          console.log(`timer4: ${getHrTimeDiff(start4)}`);
+          setTimeout(() => {
+            const start6 = startHrTime();
+            console.log(`timer5: ${getHrTimeDiff(start5)}`);
+            setTimeout(() => {
+              const start7 = startHrTime();
+              console.log(`timer6: ${getHrTimeDiff(start6)}`);
+              setTimeout(() => {
+                const start8 = startHrTime();
+                console.log(`timer7: ${getHrTimeDiff(start7)}`);
+                setTimeout(() => {
+                  console.log(`timer8: ${getHrTimeDiff(start8)}`);
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+}
+TimerRace();
+
+console.log("End of Script");
