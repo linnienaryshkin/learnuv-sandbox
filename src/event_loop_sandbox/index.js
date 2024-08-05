@@ -37,12 +37,134 @@ console.log("Start of Script");
  * Event Loop (libuv, libevent for Chrome)
  * - After processing one phase and before moving to the next phase, event loop will process two intermediate queues until no items are remaining in the intermediate queues.
  * - Tracking the reference counter of total items to be processed - once it reaches zero, the event loop exits.
- * 1. Expired timers and intervals queue (min-heap)
+ * 1. Expired timers and intervals queue (min-heap) (setTimeout, setInterval)
  * 2. IO Events Queue
- * 3. Immediate Queue
+ * 3. Immediate Queue (setImmediate)
  * 4. Close Handlers Queue
  * 0. (before moving between queues) Next Ticks Queue, Other Microtasks Queue (resolved/reject promise callbacks)
  * - Next Ticks and Microtasks Queue will run between each individual setTimeout and setImmediate callbacks to match the browser behavior
+ */
+
+/**
+ * Libuv Event Loop Phases
+ * 1. Timers — Expired timer and interval callbacks scheduled by `setTimeout` and `setInterval` will be invoked.
+ * 2. Pending I/O callbacks — Pending Callbacks of any completed/errored I/O operation to be executed here.
+ * 3. Idle, prepare — Used internally by NodeJS.
+ * 4. Prepare Handlers — Perform some prep-work before polling for I/O.
+ * 5. I/O Poll — Optionally wait for any I/O to complete.
+ * 6. Check handlers — Perform some post-mortem work after polling for I/O. Usually, callbacks scheduled by setImmediate will be invoked here.
+ * 7. Close handlers — Execute close handlers of any closed I/O operations (closed socket connection etc.)
+
+// Check whether there are any referenced handlers to be invoked, or any active operations pending
+r = uv__loop_alive(loop);
+if (!r)
+  uv__update_time(loop);
+
+while (r != 0 && loop->stop_flag == 0) {
+  // This will send a system call to get the current time and update the loop time (This is used to identify expired timers).
+  uv__update_time(loop);
+
+  // Run all expired timers
+  uv__run_timers(loop);
+  
+  // Run all completed/errored I/O callbacks
+  ran_pending = uv__run_pending(loop);
+  
+  uv__run_idle(loop);
+  uv__run_prepare(loop);
+
+  // timeout to determine how long it should block for I/O
+  timeout = 0;
+  if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
+    timeout = uv_backend_timeout(loop);
+
+  // Poll for I/O, epoll_wait on Linux, kqueue on BSD systems (macOS), event ports in Solaris, GetQueuedCompletionStatus in IOCP (Input Output Completion Port) in Windows, etc
+  uv__io_poll(loop, timeout);
+
+  // Run all check handlers (setImmediate callbacks will run here)
+  uv__run_check(loop);
+
+  // Run all close handlers
+  uv__run_closing_handles(loop);
+
+  if (mode == UV_RUN_ONCE) {
+    uv__update_time(loop);
+    uv__run_timers(loop);
+  }
+
+  r = uv__loop_alive(loop);
+  if (mode == UV_RUN_ONCE || mode == UV_RUN_NOWAIT)
+    break;
+}
+
+
+// Event loop will keep spinning as long as uv__loop_alive function returns true.
+static int uv__loop_alive(const uv_loop_t* loop) {
+  return uv__has_active_handles(loop) ||
+    uv__has_active_reqs(loop) ||
+    loop->closing_handles != NULL;
+}
+
+static int uv__run_pending(uv_loop_t* loop) {
+  QUEUE* q;
+  QUEUE pq;
+  uv__io_t* w;
+
+  if (QUEUE_EMPTY(&loop->pending_queue))
+    return 0;
+
+  QUEUE_MOVE(&loop->pending_queue, &pq);
+
+  while (!QUEUE_EMPTY(&pq)) {
+    q = QUEUE_HEAD(&pq);
+    QUEUE_REMOVE(q);
+    QUEUE_INIT(q);
+    w = QUEUE_DATA(q, uv__io_t, pending_queue);
+    w->cb(loop, w, POLLOUT);
+  }
+
+  return 1;
+}
+
+int uv_backend_timeout(const uv_loop_t* loop) {
+  if (loop->stop_flag != 0)
+    return 0;
+
+  if (!uv__has_active_handles(loop) && !uv__has_active_reqs(loop))
+    return 0;
+
+  if (!QUEUE_EMPTY(&loop->idle_handles))
+    return 0;
+
+  if (!QUEUE_EMPTY(&loop->pending_queue))
+    return 0;
+
+  if (loop->closing_handles)
+    return 0;
+
+  return uv__next_timeout(loop);
+}
+
+// The event loop will not be blocked if there are any pending tasks to be executed. If there are no pending tasks to be executed, it will only be blocked until the next timer goes off, which re-activates the loop.
+int uv__next_timeout(const uv_loop_t* loop) {
+  const struct heap_node* heap_node;
+  const uv_timer_t* handle;
+  uint64_t diff;
+
+  heap_node = heap_min((const struct heap*) &loop->timer_heap);
+  if (heap_node == NULL)
+    return -1; // block indefinitely
+
+  handle = container_of(heap_node, uv_timer_t, heap_node);
+  if (handle->timeout <= loop->time)
+    return 0;
+
+  diff = handle->timeout - loop->time;
+  if (diff > INT_MAX)
+    diff = INT_MAX;
+
+  return diff;
+}
  */
 
 /**
