@@ -34,6 +34,12 @@ console.log("Start of Script");
  */
 
 /**
+ * Threadpool
+ * - used to perform all File I/O operations, getaddrinfo and getnameinfo calls during DNS operations, randomBytes, randomFill and pbkdf2 are also run on the libuv thread pool
+ * - thread pool is limited (default size is 4, can be increased up to 128)
+ */
+
+/**
  * Event Loop (libuv, libevent for Chrome)
  * - After processing one phase and before moving to the next phase, event loop will process two intermediate queues until no items are remaining in the intermediate queues.
  * - Tracking the reference counter of total items to be processed - once it reaches zero, the event loop exits.
@@ -54,6 +60,8 @@ console.log("Start of Script");
  * 5. I/O Poll — Optionally wait for any I/O to complete.
  * 6. Check handlers — Perform some post-mortem work after polling for I/O. Usually, callbacks scheduled by setImmediate will be invoked here.
  * 7. Close handlers — Execute close handlers of any closed I/O operations (closed socket connection etc.)
+ * 
+ * @link https://www.youtube.com/watch?v=sGTRmPiXD4Y
 
 // Check whether there are any referenced handlers to be invoked, or any active operations pending
 r = uv__loop_alive(loop);
