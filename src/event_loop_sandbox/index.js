@@ -353,3 +353,15 @@ function TimerRace() {
 TimerRace();
 
 console.log("End of Script");
+
+/**
+ * Best Practices
+ * - Avoid sync I/O inside repeatedly invoked code blocks
+ * - dns.lookup() vs dns.resolve*()
+ * > These functions are implemented quite differently than dns.lookup(). (dns.resolve does not overload the libuv threadpool)
+ * > They do not use getaddrinfo(3) and they always perform a DNS query on the network. This network communication is always done asynchronously, and does not use libuv's threadpool.
+ * - If there is performance drop consider (in terms of file I/O or crypto operations)
+ * - - Increasing the capacity of the threadpool up-to 128 threads by setting UV_THREADPOOL_SIZE environment variable.
+ * - - Resolve hostname to IP address using dns.resolve* function and use IP address directly
+ * - Event loop monitoring / https://github.com/mcollina/loopbench
+ */
