@@ -9,7 +9,7 @@
  * @link New changes to timers and microtasks in Node v11 - https://blog.insiderattack.net/new-changes-to-timers-and-microtasks-from-node-v11-0-0-and-above-68d112743eb3
  * @link JavaScript Event Loop vs Node JS Event Loop - https://blog.insiderattack.net/javascript-event-loop-vs-node-js-event-loop-aea2b1b85f5c
 
-node src/event_loop_sandbox
+node nodejs/event_loop_sandbox
 
  */
 
@@ -219,7 +219,7 @@ function ioStarvation() {
 /**
  * Node check against time expiration.
  * Time is taken on each loop run
- * @link https://docs.libuv.org/en/v1.x/design.html#the-i-o-loop | concept of ‘now’
+ * @link https://docs.libuv.org/en/v1.x/design.html#the-i-o-loop | concept of 'now'
  */
 function TimerExecution() {
   const start = process.hrtime();
@@ -239,7 +239,7 @@ function TimerExecution() {
  * As you might guess, this program will always print setTimeout before setImmediate
  * because the expired timer queue are processed before immediate.
  * !BUT
- * The minimum timeout to 1ms in order to align with Chrome’s timers cap
+ * The minimum timeout to 1ms in order to align with Chrome's timers cap
  * @link https://chromium.googlesource.com/chromium/blink/+/master/Source/core/frame/DOMTimer.cpp#93
  * So sometimes, setImmediate will be executed before setTimeout.
  */
@@ -301,7 +301,7 @@ function MicrotasksVsMacrotasks() {
 /**
  * Even if you have set the timeout to 0, all NodeJS timers seem to have fired after at least1ms.
  * Chrome seems to cap the minimum timeout to 1ms for the first 4 nested timers. But afterwards, the cap seems to be increased to 4ms.
- * > “Timers can be nested; after five such nested timers, however, the interval is forced to be at least four milliseconds.”
+ * > "Timers can be nested; after five such nested timers, however, the interval is forced to be at least four milliseconds."
  * Both NodeJS and Chrome enforces a 1ms minimum timeout to all the timers
  */
 function TimerRace() {
